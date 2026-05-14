@@ -5,7 +5,8 @@
       "Skill(update-config)",
       "Skill(ui-ux-pro-max)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\suven\\\\Documents\\\\cricpro-academy\\\\ngca-ui\" -Force)",
-      "Bash(Select-Object Name, Mode, Length)"
+      "Bash(Select-Object Name, Mode, Length)",
+      "Bash(python scripts/search.py \"sports academy cricket training premium\" --design-system -p \"Next Gen Cricket Academy\" -f markdown)"
     ]
   }
 }
