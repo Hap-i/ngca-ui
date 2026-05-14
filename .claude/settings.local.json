@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx *)",
+      "Skill(update-config)",
+      "Skill(ui-ux-pro-max)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\suven\\\\Documents\\\\cricpro-academy\\\\ngca-ui\" -Force)",
+      "Bash(Select-Object Name, Mode, Length)"
+    ]
+  }
+}
