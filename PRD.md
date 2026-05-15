@@ -94,15 +94,15 @@ Build a premium, conversion-focused website for a modern indoor cricket training
   - [x] Final CTA - conversion
 
 - [x] **Mobile Optimization**
-  - [ ] Sticky bottom CTA bar (Phase 2)
+  - [x] Sticky bottom CTA bar
   - [x] Touch-friendly interactions (44px targets)
   - [x] Responsive layout all breakpoints
 
 ### Success Criteria
 - [x] **Mobile LCP < 2.5 seconds**
-- [x] Mobile CTAs prominent and accessible (sticky CTA - Phase 2)
+- [x] Mobile CTAs prominent and accessible
 - [x] Story flow clear and emotional
-- Mobile navigation smooth (hamburger menu works)
+- [x] Mobile navigation smooth (hamburger menu works)
 - Touch targets 44px minimum
 - No horizontal scroll on 375px width
 
@@ -198,7 +198,7 @@ Step 4: Confirmation → Summary, what to bring
 - [x] Opening hours, parking info
 
 **Week 12: SEO Foundation**
-- [ ] Metadata for all pages
+- [x] Metadata for all pages
 - [ ] XML sitemap
 - [ ] Open Graph / Twitter cards
 - [ ] Structured data (LocalBusiness, Service, FAQ)

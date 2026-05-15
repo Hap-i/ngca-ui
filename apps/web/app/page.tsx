@@ -3,6 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Badge } from "@workspace/ui/components/badge";
 import Link from "next/link";
 import { services, features, testimonials } from "@/lib/data";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Next Gen Cricket Academy | Premium Indoor Cricket Training",
+  description: "Book indoor cricket lanes, coaching sessions, and bowling machine hire. Practice to Perfection at our premium indoor cricket facility. Open 12pm-12am, 7 days a week.",
+  keywords: ["cricket training", "indoor cricket", "cricket coaching", "cricket lane hire", "batting practice", "bowling machine hire"],
+};
 
 export default function Home() {
   return (

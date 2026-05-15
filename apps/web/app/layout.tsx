@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Header } from "@/components/header"
+import { StickyCTA } from "@/components/sticky-cta"
 import { cn } from "@workspace/ui/lib/utils";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ThemeProvider>
           <Header />
           {children}
+          <StickyCTA />
         </ThemeProvider>
       </body>
     </html>
