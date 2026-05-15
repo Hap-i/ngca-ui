@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
+    "@supabase/supabase-js": "^2.105.4",
     "@workspace/ui": "*",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
