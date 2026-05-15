@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@workspace/ui/components/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@workspace/ui/components/sheet";
-import { Menu, X, Target } from "lucide-react";
+import { Menu } from "lucide-react";
 
 const navLinks = [
   { href: "/lane-hire", label: "Lane Hire" },
@@ -25,10 +25,13 @@ export function Header() {
       <div className="container px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            <Target className="h-6 w-6 text-primary" />
-            <span className="hidden sm:inline">Next Gen Cricket Academy</span>
-            <span className="sm:hidden">NGCA</span>
+          <Link href="/" className="flex items-center gap-2">
+            <img
+              src="/NGCA-transparent-logo.png"
+              alt="Next Gen Cricket Academy"
+              className="h-10 w-auto"
+            />
+            <span className="hidden lg:inline font-bold text-lg">Next Gen Cricket Academy</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -63,11 +66,15 @@ export function Header() {
               <div className="flex flex-col gap-6 mt-8">
                 <Link
                   href="/"
-                  className="flex items-center gap-2 font-bold text-lg"
+                  className="flex items-center gap-2"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Target className="h-6 w-6 text-primary" />
-                  Next Gen Cricket
+                  <img
+                    src="/NGCA-transparent-logo.png"
+                    alt="Next Gen Cricket Academy"
+                    className="h-8 w-auto"
+                  />
+                  <span className="font-bold text-lg">Next Gen Cricket</span>
                 </Link>
                 <nav className="flex flex-col gap-4">
                   {navLinks.map((link) => (
