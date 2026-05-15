@@ -120,26 +120,26 @@ Build a premium, conversion-focused website for a modern indoor cricket training
 ### Deliverables
 
 **Week 5-6: Lane Hire (Priority)**
-- [ ] Service page template
-- [ ] Lane Hire page with full content
-- [ ] Date picker component
-- [ ] Time slot grid with availability
-- [ ] Duration selector with price calculator
-- [ ] Booking form with validation
-- [ ] Confirmation screen
+- [x] Service page template
+- [x] Lane Hire page with full content
+- [x] Date picker component
+- [x] Time slot grid with availability
+- [x] Duration selector with price calculator
+- [x] Booking form with validation
+- [x] Confirmation screen
 
 **Week 7: Group Sessions**
-- [ ] Group Sessions page
-- [ ] Schedule display (Fri, Sat, Sun times)
-- [ ] Player/parent information capture
-- [ ] Emergency contact fields
-- [ ] Age verification
+- [x] Group Sessions page
+- [x] Schedule display (Fri, Sat, Sun times)
+- [x] Player/parent information capture
+- [x] Emergency contact fields
+- [x] Age verification
 
 **Week 8: Bowling Machine & Side Arm**
-- [ ] Bowling Machine page
-- [ ] Side Arm page
-- [ ] Equipment-specific content
-- [ ] Simplified booking flow (like Lane Hire)
+- [x] Bowling Machine page
+- [x] Side Arm page
+- [x] Equipment-specific content
+- [x] Simplified booking flow (like Lane Hire)
 
 ### Booking Flow Architecture
 
@@ -186,16 +186,16 @@ Step 4: Confirmation → Summary, what to bring
 ### Deliverables
 
 **Week 10: About Page**
-- [ ] Facility history and mission
-- [ ] Team/coach profiles
-- [ ] Facility specifications
-- [ ] Safety certifications
+- [x] Facility history and mission
+- [x] Team/coach profiles
+- [x] Facility specifications
+- [x] Safety certifications
 
 **Week 11: Contact & Inquiry**
-- [ ] Contact page with form
-- [ ] Department routing (bookings, coaching, events)
-- [ ] Map integration
-- [ ] Opening hours, parking info
+- [x] Contact page with form
+- [x] Department routing (bookings, coaching, events)
+- [x] Map integration
+- [x] Opening hours, parking info
 
 **Week 12: SEO Foundation**
 - [ ] Metadata for all pages
