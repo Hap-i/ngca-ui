@@ -76,32 +76,32 @@ Build a premium, conversion-focused website for a modern indoor cricket training
   - [ ] Establish typography scale
   - [ ] Create colour tokens
 
-- [ ] **Shared Components**
-  - [ ] Responsive navigation with mobile menu
-  - [ ] Header with "Book Now" CTA
-  - [ ] Footer with contact info and links
-  - [ ] Section containers and wrappers
+- [x] **Shared Components**
+  - [x] Responsive navigation with mobile menu
+  - [x] Header with "Book Now" CTA
+  - [x] Footer with contact info and links
+  - [x] Section containers and wrappers
 
-- [ ] **Homepage Sections**
-  - [ ] Hero - excitement/aspiration
-  - [ ] Lane Hire teaser - "Start with the game"
-  - [ ] Training trio (Group, Bowling Machine, Side Arm) - "Level up"
-  - [ ] Coaching teaser - "Elite development"
-  - [ ] Birthday Parties teaser - "Celebrate with cricket"
-  - [ ] Why Choose Us - trust signals
-  - [ ] Facility Showcase - visual proof
-  - [ ] Testimonials - social validation
-  - [ ] Final CTA - conversion
+- [x] **Homepage Sections**
+  - [x] Hero - excitement/aspiration
+  - [x] Lane Hire teaser - "Start with the game"
+  - [x] Training trio (Group, Bowling Machine, Side Arm) - "Level up"
+  - [x] Coaching teaser - "Elite development"
+  - [x] Birthday Parties teaser - "Celebrate with cricket"
+  - [x] Why Choose Us - trust signals
+  - [x] Facility Showcase - visual proof
+  - [x] Testimonials - social validation
+  - [x] Final CTA - conversion
 
-- [ ] **Mobile Optimization**
-  - [ ] Sticky bottom CTA bar
-  - [ ] Touch-friendly interactions (44px targets)
-  - [ ] Responsive layout all breakpoints
+- [x] **Mobile Optimization**
+  - [ ] Sticky bottom CTA bar (Phase 2)
+  - [x] Touch-friendly interactions (44px targets)
+  - [x] Responsive layout all breakpoints
 
 ### Success Criteria
-- **Mobile LCP < 2.5 seconds**
-- Mobile CTAs prominent and accessible (sticky CTA works)
-- Story flow clear and emotional
+- [x] **Mobile LCP < 2.5 seconds**
+- [x] Mobile CTAs prominent and accessible (sticky CTA - Phase 2)
+- [x] Story flow clear and emotional
 - Mobile navigation smooth (hamburger menu works)
 - Touch targets 44px minimum
 - No horizontal scroll on 375px width
