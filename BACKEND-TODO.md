@@ -72,9 +72,9 @@ EMAIL_FROM=noreply@nextgencricket.co.uk
 
 | Task | Description | Dependency |
 |------|-------------|------------|
-| [ ] 1.1 Supabase Schema | Create all tables (users, resources, bookings, etc.) | Supabase project |
-| [ ] 1.2 Enable Extensions | Run: btree_gist, pgcrypto | Supabase SQL editor |
-| [ ] 1.3 RLS Policies | Set up row-level security | Supabase |
+| [x] 1.1 Supabase Schema | Create all tables (users, resources, bookings, etc.) | Supabase project |
+| [x] 1.2 Enable Extensions | Run: btree_gist, pgcrypto | Supabase SQL editor |
+| [x] 1.3 RLS Policies | Set up row-level security | Supabase |
 | [ ] 1.4 Drizzle Setup | Configure Drizzle ORM | None |
 | [ ] 1.5 Auth Setup | Configure Supabase Auth | Supabase Auth settings |
 
@@ -103,12 +103,12 @@ EMAIL_FROM=noreply@nextgencricket.co.uk
 
 | Task | Description | Dependency |
 |------|-------------|------------|
-| [ ] 3.1 Admin Auth Middleware | Protect `/api/admin/*` routes | Phase 1 |
-| [ ] 3.2 Admin Booking Management | CRUD for bookings | Phase 2 |
-| [ ] 3.3 Resource Management | CRUD for lanes/machines | Phase 2 |
-| [ ] 3.4 Slot Blocking System | Admin block dates | Phase 2 |
-| [ ] 3.5 Group Sessions | CRUD + player bookings | Phase 1 |
-| [ ] 3.6 Customer Management | View booking history | Phase 2 |
+| [x] 3.1 Admin Auth Middleware | Protect `/api/admin/*` routes | Phase 1 |
+| [x] 3.2 Admin Booking Management | CRUD for bookings | Phase 2 |
+| [x] 3.3 Resource Management | CRUD for lanes/machines | Phase 2 |
+| [x] 3.4 Slot Blocking System | Admin block dates | Phase 2 |
+| [x] 3.5 Group Sessions | CRUD + player bookings | Phase 1 |
+| [x] 3.6 Customer Management | View booking history | Phase 2 |
 
 **What you need:** Nothing new
 
