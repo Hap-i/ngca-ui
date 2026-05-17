@@ -7,6 +7,7 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
   { href: '/admin/bookings', label: 'Bookings', icon: '📅' },
   { href: '/admin/resources', label: 'Resources', icon: '🏏' },
+  { href: '/admin/blocked-slots', label: 'Blocked Slots', icon: '🚫' },
   { href: '/admin/group-sessions', label: 'Group Sessions', icon: '👥' },
   { href: '/admin/inquiries', label: 'Inquiries', icon: '💬' },
 ];

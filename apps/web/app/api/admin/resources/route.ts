@@ -3,9 +3,16 @@ import { supabaseAdmin } from '@/lib/services/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('resources')
-      .select('*')
+    const searchParams = request.nextUrl.searchParams;
+    const type = searchParams.get('type');
+
+    let query = supabaseAdmin.from('resources').select('*');
+
+    if (type) {
+      query = query.eq('type', type);
+    }
+
+    const { data, error } = await query
       .order('type')
       .order('name');
 
@@ -24,9 +31,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, type, active, capacity, peak_price, offpeak_price } = body;
+    const { name, type, active, capacity } = body;
 
-    if (!name || !type || peak_price === undefined || offpeak_price === undefined) {
+    if (!name || !type) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -40,8 +47,6 @@ export async function POST(request: NextRequest) {
         type,
         active: active ?? true,
         capacity: capacity ?? 1,
-        peak_price,
-        offpeak_price
       })
       .select()
       .single();
@@ -61,7 +66,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, name, type, active, capacity, peak_price, offpeak_price } = body;
+    const { id, name, type, active, capacity } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -75,8 +80,6 @@ export async function PATCH(request: NextRequest) {
     if (type) updateData.type = type;
     if (active !== undefined) updateData.active = active;
     if (capacity) updateData.capacity = capacity;
-    if (peak_price) updateData.peak_price = peak_price;
-    if (offpeak_price) updateData.offpeak_price = offpeak_price;
 
     const { data, error } = await supabaseAdmin
       .from('resources')

@@ -1,4 +1,5 @@
 # CricPro Academy Backend PRD
+
 ## Next.js + Supabase Backend Architecture
 
 **Project:** CricPro Academy Backend Platform
@@ -53,21 +54,21 @@ The system must remain safe under:
 
 # Tech Stack
 
-| Layer | Technology |
-|---|---|
+| Layer             | Technology         |
+| ----------------- | ------------------ |
 | Backend Framework | Next.js App Router |
-| API Layer | Route Handlers |
-| Database | Supabase Postgres |
-| ORM | Drizzle ORM |
-| Authentication | Supabase Auth |
-| Validation | Zod |
-| Payments | Stripe |
-| Emails | Resend |
-| File Storage | Supabase Storage |
-| Realtime | Supabase Realtime |
-| Caching | Redis / Upstash |
-| Monitoring | Sentry |
-| Deployment | Vercel |
+| API Layer         | Route Handlers     |
+| Database          | Supabase Postgres  |
+| ORM               | Drizzle ORM        |
+| Authentication    | Supabase Auth      |
+| Validation        | Zod                |
+| Payments          | Stripe             |
+| Emails            | Resend             |
+| File Storage      | Supabase Storage   |
+| Realtime          | Supabase Realtime  |
+| Caching           | Redis / Upstash    |
+| Monitoring        | Sentry             |
+| Deployment        | Vercel             |
 
 ---
 
@@ -205,38 +206,198 @@ src/
 
 # 1. Availability System
 
-## Responsibilities
+## Core Principle
 
-- fetch available slots
-- calculate peak/off-peak pricing
-- exclude blocked slots
-- exclude overlapping bookings
-- support realtime refresh
+**Slots are NOT stored permanently.**
+
+Backend dynamically generates slots using:
+
+- availability rules
+- pricing rules
+- overrides
+- bookings
+- blocked slots
+
+This architecture provides:
+
+- DB scalability (no millions of pre-created slots)
+- Flexible pricing
+- Simple admin operations
+- Easy rule updates
 
 ---
 
-# Availability API
+## Architecture Flow
 
-## GET `/api/availability`
-
-### Query Params
-
+```txt
+1. Fetch resource
+2. Fetch availability rules
+3. Generate raw slots
+4. Apply pricing rules
+5. Apply overrides
+6. Remove blocked slots
+7. Remove booked slots
+8. Return final slots
 ```
-date
-resourceId
-duration
+
+---
+
+## 1.1 Create Availability Rules
+
+Admin defines when a resource operates.
+
+### API
+
+```http
+POST /api/admin/resources/:id/availability-rules
+```
+
+### Payload
+
+```json
+{
+  "dayOfWeek": 1,
+  "startTime": "06:00",
+  "endTime": "22:00",
+  "slotDurationMins": 60,
+  "bufferMins": 10
+}
+```
+
+### Meaning
+
+```txt
+Every Monday:
+6 AM → 10 PM
+1 hour slots
+10 min buffer between slots
+```
+
+---
+
+## 1.2 Create Pricing Rules
+
+Admin defines pricing logic.
+
+### API
+
+```http
+POST /api/admin/resources/:id/pricing-rules
+```
+
+### Payload
+
+```json
+{
+  "name": "Evening Premium",
+  "days": [1, 2, 3, 4, 5],
+  "startTime": "17:00",
+  "endTime": "22:00",
+  "price": 700
+}
+```
+
+### Meaning
+
+```txt
+Weekday evenings cost ₹700
+Multiple rules can overlap - highest price wins
+```
+
+---
+
+## 1.3 Create Slot Override
+
+Temporary one-off price changes for specific slots.
+
+### API
+
+```http
+POST /api/admin/resources/:id/slot-overrides
+```
+
+### Payload
+
+```json
+{
+  "slotDate": "2026-05-20",
+  "startAt": "2026-05-20T18:00:00Z",
+  "endAt": "2026-05-20T19:00:00Z",
+  "customPrice": 1200
+}
+```
+
+### Meaning
+
+```txt
+Override price for a specific slot
+Useful for special events or surge pricing
+```
+
+---
+
+## 1.4 Block Slots
+
+Admin blocks time periods for maintenance, holidays, events.
+
+### API
+
+```http
+POST /api/admin/resource-blocks
+```
+
+### Payload
+
+```json
+{
+  "resourceId": "lane-1",
+  "startAt": "2026-05-20T18:00:00Z",
+  "endAt": "2026-05-20T20:00:00Z",
+  "reason": "Maintenance"
+}
+```
+
+---
+
+## Generate Slots API
+
+Main endpoint for fetching available slots.
+
+### API
+
+```http
+GET /api/slots?resourceId=lane-1&date=2026-05-20
 ```
 
 ### Response
 
 ```json
-{
-  "slots": [],
-  "blocked": [],
-  "booked": [],
-  "pricing": {}
-}
+[
+  {
+    "start": "2026-05-20T06:00:00Z",
+    "end": "2026-05-20T07:00:00Z",
+    "price": 300,
+    "available": true
+  },
+  {
+    "start": "2026-05-20T18:00:00Z",
+    "end": "2026-05-20T19:00:00Z",
+    "price": 1200,
+    "available": true
+  }
+]
 ```
+
+---
+
+## Responsibilities
+
+- dynamically generate slots based on rules
+- calculate peak/off-peak pricing
+- apply one-off overrides
+- exclude blocked slots
+- exclude overlapping bookings
+- support realtime refresh
 
 ---
 
@@ -246,6 +407,8 @@ duration
 - mobile optimized payload
 - cache frequently requested dates
 - support realtime updates
+- handle multiple overlapping pricing rules
+- apply pricing rule priority (highest price wins)
 
 ---
 

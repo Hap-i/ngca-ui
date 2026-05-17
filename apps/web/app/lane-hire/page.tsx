@@ -1,19 +1,161 @@
+'use client';
+
 import { Button } from "@workspace/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card";
 import { Badge } from "@workspace/ui/components/badge";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select";
 import Link from "next/link";
 import { ArrowLeft, Clock, Users, Calendar, CheckCircle } from "lucide-react";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Lane Hire | Next Gen Cricket Academy",
-  description: "Book indoor cricket lanes for practice. £15/hour off-peak, £25/hour peak. Open 12pm-12am, 7 days a week.",
-};
+import { useState, useEffect } from "react";
 
 export default function LaneHirePage() {
+  const [selectedDate, setSelectedDate] = useState('');
+  const [slots, setSlots] = useState<Array<{time: string; availableLanes: number; price: string}>>([]);
+  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [laneResourceIds, setLaneResourceIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    date: '',
+    duration: '1',
+    players: '1',
+    name: '',
+    email: '',
+    phone: '',
+    notes: ''
+  });
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchSlots();
+    }
+    fetchLaneResources();
+  }, [selectedDate]);
+
+  async function fetchLaneResources() {
+    try {
+      const res = await fetch('/api/admin/resources?type=lane'); // Assuming admin API can filter by type
+      const data = await res.json();
+      if (data.success) {
+        setLaneResourceIds(data.resources.map((r: { id: string }) => r.id));
+      }
+    } catch (error) {
+      console.error('Failed to fetch lane resources:', error);
+    }
+  }
+
+  async function fetchSlots() {
+    setLoading(true);
+    setSlots([]); // Clear previous slots
+    setSelectedSlots([]); // Clear selected slots on date change
+    setTotalPrice(0); // Reset total price
+    try {
+      const res = await fetch(`/api/slots?resourceType=lane&date=${selectedDate}`);
+      const data = await res.json();
+      if (data.success && data.dates.length > 0) {
+        setSlots(data.dates[0].slots);
+      }
+    } catch (error) {
+      console.error('Failed to fetch slots:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function toggleSlot(time: string) {
+    setSelectedSlots(prev =>
+      prev.includes(time) ? prev.filter(t => t !== time) : [...prev, time].sort()
+    );
+  }
+
+  useEffect(() => {
+    let price = 0;
+    selectedSlots.forEach(slotTime => {
+      const slot = slots.find(s => s.time === slotTime);
+      if (slot) {
+        price += parseFloat(slot.price) * parseInt(formData.duration);
+      }
+    });
+    setTotalPrice(price);
+  }, [selectedSlots, slots, formData.duration]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (selectedSlots.length === 0) {
+      alert("Please select at least one time slot.");
+      return;
+    }
+    if (totalPrice === 0) {
+      alert("Cannot book for free. Please ensure slots have prices.");
+      return;
+    }
+
+    try {
+      const bookingPromises = selectedSlots.map(async (slotTime) => {
+        // Find an available lane resource ID for this slot time
+        const availableLane = slots.find(s => s.time === slotTime && s.availableLanes > 0);
+        if (!availableLane) {
+          throw new Error(`No available lanes for slot ${slotTime}`);
+        }
+
+        // For now, we'll just pick the first laneResourceId. In a real scenario, you'd want more sophisticated lane assignment.
+        if (laneResourceIds.length === 0) {
+          throw new Error("No lane resources available.");
+        }
+        const resourceIdToBook = laneResourceIds[0]; // Simplistic: always pick the first available lane
+
+        const startDateTime = `${formData.date}T${slotTime}:00`;
+        const endHour = parseInt(slotTime.split(':')[0]) + parseInt(formData.duration);
+        const endMin = slotTime.split(':')[1];
+        const endDateTime = `${formData.date}T${endHour.toString().padStart(2, '0')}:${endMin}:00`;
+
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resourceId: resourceIdToBook,
+            serviceType: 'lane_hire',
+            bookingDate: formData.date,
+            startAt: startDateTime,
+            endAt: endDateTime,
+            customerName: formData.name,
+            customerEmail: formData.email,
+            customerPhone: formData.phone,
+            playerCount: parseInt(formData.players),
+            notes: formData.notes,
+            amount: (parseFloat(availableLane.price) * parseInt(formData.duration)).toFixed(2),
+          })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to create booking');
+        }
+        return data.booking;
+      });
+
+      const bookings = await Promise.all(bookingPromises);
+      alert(`Bookings confirmed! References: ${bookings.map(b => b.booking_reference).join(', ')}`);
+      // Reset form or navigate
+      setSelectedSlots([]);
+      setTotalPrice(0);
+      setFormData({
+        ...formData,
+        name: '',
+        email: '',
+        phone: '',
+        notes: ''
+      });
+      fetchSlots(); // Refresh slots after booking
+
+    } catch (error: any) {
+      console.error('Booking error:', error);
+      alert('Booking failed: ' + error.message);
+    }
+  }
+
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
@@ -152,57 +294,80 @@ export default function LaneHirePage() {
               <CardHeader>
                 <CardTitle>Book Your Lane</CardTitle>
                 <CardDescription>
-                  Fill in your details and we'll confirm your booking
+                  Select date, check availability, and confirm your booking
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="date">Preferred Date</Label>
-                      <Input id="date" type="date" />
+                      <Input
+                        id="date"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => {
+                          setFormData({...formData, date: e.target.value});
+                          setSelectedDate(e.target.value);
+                        }}
+                        required
+                      />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="time">Preferred Time</Label>
-                      <Select>
-                        <SelectTrigger id="time">
-                          <SelectValue placeholder="Select time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="12:00">12:00 PM</SelectItem>
-                          <SelectItem value="13:00">1:00 PM</SelectItem>
-                          <SelectItem value="14:00">2:00 PM</SelectItem>
-                          <SelectItem value="15:00">3:00 PM</SelectItem>
-                          <SelectItem value="16:00">4:00 PM</SelectItem>
-                          <SelectItem value="17:00">5:00 PM</SelectItem>
-                          <SelectItem value="18:00">6:00 PM</SelectItem>
-                          <SelectItem value="19:00">7:00 PM</SelectItem>
-                          <SelectItem value="20:00">8:00 PM</SelectItem>
-                          <SelectItem value="21:00">9:00 PM</SelectItem>
-                          <SelectItem value="22:00">10:00 PM</SelectItem>
-                          <SelectItem value="23:00">11:00 PM</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Available Slots</Label>
+                    {loading ? (
+                      <div className="flex items-center justify-center h-24">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
+                    ) : slots.length === 0 ? (
+                      <p className="text-muted-foreground">Select a date to see available slots.</p>
+                    ) : (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                        {slots.map((slot) => (
+                          <Button
+                            key={slot.time}
+                            variant={selectedSlots.includes(slot.time) ? "default" : "outline"}
+                            onClick={() => toggleSlot(slot.time)}
+                            disabled={slot.availableLanes === 0}
+                            className="flex-col h-auto py-2"
+                          >
+                            <span className="font-semibold">{parseInt(slot.time) < 12 ? `${parseInt(slot.time)}:00 AM` : `${(parseInt(slot.time) > 12 ? parseInt(slot.time) - 12 : 12)}:00 ${parseInt(slot.time) >= 12 ? 'PM' : 'AM'}`}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {slot.availableLanes > 0 ? `${slot.availableLanes} lanes` : "Booked"}
+                            </span>
+                            <span className="text-xs">£{parseFloat(slot.price).toFixed(2)}/hr</span>
+                          </Button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="duration">Duration</Label>
-                      <Select>
+                      <Select
+                        value={formData.duration}
+                        onValueChange={(value) => setFormData({...formData, duration: value})}
+                        disabled={selectedSlots.length === 0}
+                      >
                         <SelectTrigger id="duration">
                           <SelectValue placeholder="Select duration" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1">1 Hour - £15/£25</SelectItem>
-                          <SelectItem value="2">2 Hours - £30/£50</SelectItem>
-                          <SelectItem value="3">3 Hours - £45/£75</SelectItem>
+                          <SelectItem value="1">1 Hour</SelectItem>
+                          <SelectItem value="2">2 Hours</SelectItem>
+                          <SelectItem value="3">3 Hours</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="players">Number of Players</Label>
-                      <Select>
+                      <Select
+                        value={formData.players}
+                        onValueChange={(value) => setFormData({...formData, players: value})}
+                      >
                         <SelectTrigger id="players">
                           <SelectValue placeholder="Select players" />
                         </SelectTrigger>
@@ -220,27 +385,56 @@ export default function LaneHirePage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" placeholder="Enter your name" />
+                    <Input
+                      id="name"
+                      placeholder="Enter your name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      required
+                    />
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" placeholder="your@email.com" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone</Label>
-                      <Input id="phone" type="tel" placeholder="07xxx xxx xxx" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="07xxx xxx xxx"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="notes">Special Requests (Optional)</Label>
-                    <Input id="notes" placeholder="Any special requirements" />
+                    <Input
+                      id="notes"
+                      placeholder="Any special requirements"
+                      value={formData.notes}
+                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full">
-                    Confirm Booking Request
+                  <div className="flex justify-between items-center text-lg font-bold">
+                    <span>Total:</span>
+                    <span>£{totalPrice.toFixed(2)}</span>
+                  </div>
+
+                  <Button type="submit" size="lg" className="w-full" disabled={selectedSlots.length === 0 || totalPrice === 0}>
+                    Confirm Booking
                   </Button>
                 </form>
               </CardContent>

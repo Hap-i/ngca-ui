@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 interface Resource {
   id: string;
@@ -8,8 +9,6 @@ interface Resource {
   type: string;
   active: boolean;
   capacity: number;
-  peak_price: string;
-  offpeak_price: string;
 }
 
 export default function AdminResourcesPage() {
@@ -22,8 +21,6 @@ export default function AdminResourcesPage() {
     type: 'lane',
     active: true,
     capacity: 6,
-    peak_price: '',
-    offpeak_price: ''
   });
 
   useEffect(() => {
@@ -109,8 +106,6 @@ export default function AdminResourcesPage() {
       type: resource.type,
       active: resource.active,
       capacity: resource.capacity,
-      peak_price: resource.peak_price,
-      offpeak_price: resource.offpeak_price
     });
     setShowForm(true);
   }
@@ -123,8 +118,6 @@ export default function AdminResourcesPage() {
       type: 'lane',
       active: true,
       capacity: 6,
-      peak_price: '',
-      offpeak_price: ''
     });
   }
 
@@ -184,30 +177,6 @@ export default function AdminResourcesPage() {
                   min="1"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Peak Price (£)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.peak_price}
-                    onChange={(e) => setFormData({ ...formData, peak_price: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Off-Peak Price (£)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.offpeak_price}
-                    onChange={(e) => setFormData({ ...formData, offpeak_price: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
-                    required
-                  />
-                </div>
-              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -260,16 +229,14 @@ export default function AdminResourcesPage() {
                   <span className="text-gray-500">Capacity</span>
                   <span className="text-gray-900">{resource.capacity} players</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Peak Price</span>
-                  <span className="text-gray-900">£{resource.peak_price}/hr</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Off-Peak Price</span>
-                  <span className="text-gray-900">£{resource.offpeak_price}/hr</span>
-                </div>
               </div>
               <div className="flex gap-2 mt-4 pt-4 border-t">
+                <Link
+                  href={`/admin/resources/${resource.id}/availability-rules`}
+                  className="flex-1 px-3 py-2 text-sm border rounded hover:bg-gray-50 text-center"
+                >
+                  Settings
+                </Link>
                 <button
                   onClick={() => toggleActive(resource.id, resource.active)}
                   className="flex-1 px-3 py-2 text-sm border rounded hover:bg-gray-50"

@@ -160,3 +160,63 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get('id');
+    const email = searchParams.get('email');
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'Booking ID is required' },
+        { status: 400 }
+      );
+    }
+
+    let query = supabaseAdmin.from('bookings').select('id, customer_email, status').eq('id', id);
+
+    // If email provided, verify ownership
+    if (email) {
+      query = query.eq('customer_email', email);
+    }
+
+    const { data: existingBooking, error: fetchError } = await query.single();
+
+    if (fetchError || !existingBooking) {
+      return NextResponse.json(
+        { success: false, error: 'Booking not found' },
+        { status: 404 }
+      );
+    }
+
+    // Only allow cancellation for pending or pending_payment bookings
+    if (!['pending_payment', 'pending'].includes(existingBooking.status)) {
+      return NextResponse.json(
+        { success: false, error: 'Only pending bookings can be cancelled' },
+        { status: 400 }
+      );
+    }
+
+    // Update booking status to cancelled
+    const { data, error } = await supabaseAdmin
+      .from('bookings')
+      .update({
+        status: 'cancelled',
+        payment_status: 'refunded'
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, booking: data });
+  } catch (error) {
+    console.error('Booking cancellation error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to cancel booking' },
+      { status: 500 }
+    );
+  }
+}

@@ -86,8 +86,6 @@ CREATE TABLE IF NOT EXISTS resources (
     type resource_type NOT NULL,
     active BOOLEAN DEFAULT true NOT NULL,
     capacity INTEGER DEFAULT 1,
-    peak_price DECIMAL(10, 2) NOT NULL,
-    offpeak_price DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
@@ -111,6 +109,46 @@ CREATE TABLE IF NOT EXISTS bookings (
     customer_phone TEXT,
     player_count INTEGER,
     notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Resource Availability Rules (define when resources operate)
+CREATE TABLE IF NOT EXISTS resource_availability_rules (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    resource_id TEXT NOT NULL REFERENCES resources(id),
+    day_of_week INTEGER NOT NULL, -- 0-6 (Sunday-Saturday)
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    slot_duration_mins INTEGER DEFAULT 60,
+    buffer_mins INTEGER DEFAULT 0,
+    active BOOLEAN DEFAULT true NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Pricing Rules (variable pricing based on time/day)
+CREATE TABLE IF NOT EXISTS pricing_rules (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    resource_id TEXT NOT NULL REFERENCES resources(id),
+    name TEXT NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    days INTEGER[] NOT NULL, -- Array of day of week (0-6)
+    price DECIMAL(10,2) NOT NULL,
+    priority INTEGER DEFAULT 1,
+    active BOOLEAN DEFAULT true NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Slot Overrides (one-off changes for specific slots)
+CREATE TABLE IF NOT EXISTS slot_overrides (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    resource_id TEXT NOT NULL REFERENCES resources(id),
+    slot_date DATE NOT NULL,
+    start_at TIMESTAMPTZ NOT NULL,
+    end_at TIMESTAMPTZ NOT NULL,
+    custom_price DECIMAL(10,2),
+    blocked BOOLEAN DEFAULT false NOT NULL,
+    reason TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
@@ -212,6 +250,9 @@ WHERE (status IN ('confirmed', 'pending_payment'));
 -- Enable RLS on all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE resources ENABLE ROW LEVEL SECURITY;
+ALTER TABLE resource_availability_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pricing_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE slot_overrides ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blocked_slots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE group_sessions ENABLE ROW LEVEL SECURITY;
@@ -225,13 +266,13 @@ ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 -- =====================================================
 
 -- Insert default resources (lanes)
-INSERT INTO resources (id, name, type, active, capacity, peak_price, offpeak_price) VALUES
-('lane-1', 'Lane 1', 'lane', true, 6, '25.00', '15.00'),
-('lane-2', 'Lane 2', 'lane', true, 6, '25.00', '15.00'),
-('lane-3', 'Lane 3', 'lane', true, 6, '25.00', '15.00'),
-('lane-4', 'Lane 4', 'lane', true, 6, '25.00', '15.00'),
-('bm-1', 'Bowling Machine 1', 'bowling_machine', true, 1, '32.00', '22.00'),
-('sa-1', 'Side Arm 1', 'side_arm', true, 1, '30.00', '30.00')
+INSERT INTO resources (id, name, type, active, capacity) VALUES
+('lane-1', 'Lane 1', 'lane', true, 6),
+('lane-2', 'Lane 2', 'lane', true, 6),
+('lane-3', 'Lane 3', 'lane', true, 6),
+('lane-4', 'Lane 4', 'lane', true, 6),
+('bm-1', 'Bowling Machine 1', 'bowling_machine', true, 1),
+('sa-1', 'Side Arm 1', 'side_arm', true, 1)
 ON CONFLICT (id) DO NOTHING;
 
 -- =====================================================
